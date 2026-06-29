@@ -534,6 +534,4 @@ onUnmounted(() => {
       </div>
     </section>
   </main>
-
-  <footer>Юниты из папки <code>decks/</code> · офлайн · ничего не уходит в сеть</footer>
 </template>

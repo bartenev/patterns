@@ -519,20 +519,4 @@ kbd {
 .done p { color: var(--muted); margin: 0 0 24px; }
 .done .row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
-footer {
-  color: var(--muted);
-  font-size: 12px;
-  text-align: center;
-  padding: 18px;
-  border-top: 1px solid var(--line);
-}
-
-footer code {
-  background: var(--azulejo-soft);
-  color: var(--azulejo);
-  padding: 1px 6px;
-  border-radius: 5px;
-  font-size: .92em;
-}
-
 .err { color: var(--amber); font-size: 13px; margin-top: 10px; }
