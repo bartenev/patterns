@@ -51,7 +51,11 @@ export interface QueueItem extends Card {
   mode: string
 }
 
-export type OrderMode = "file" | "shuffleBlocks" | "shuffleAll"
+export type OrderMode =
+  | "straight"
+  | "shuffleCards"
+  | "shuffleBlocks"
+  | "shuffleAll"
 
 export type DirMode = "auto" | "ru" | "es"
 

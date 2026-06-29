@@ -16,7 +16,7 @@ const revealed = ref(false)
 const dirMode = ref<DirMode>("auto")
 const requeue = ref(true)
 const curSection = ref<string | null>(null)
-const order = ref<OrderMode>("file")
+const order = ref<OrderMode>("straight")
 const autospeak = ref(false)
 const isDark = ref(false)
 const esVoice = ref<SpeechSynthesisVoice | null>(null)
@@ -29,9 +29,26 @@ const cardNote = ref("")
 const spanishText = ref("")
 
 const orderOptions: { value: OrderMode; title: string; desc: string }[] = [
-  { value: "file", title: "Прямой порядок", desc: "как в файле — блоками, с разделителями. Для постановки навыка." },
-  { value: "shuffleBlocks", title: "Перемешать внутри блоков", desc: "порядок блоков сохраняется, карточки внутри каждого — вперемешку." },
-  { value: "shuffleAll", title: "Перемешать всё", desc: "все карточки из всех блоков в один случайный поток. Экзамен на выбор." }
+  {
+    value: "straight",
+    title: "1 — всё по порядку",
+    desc: "юниты по очереди → блоки прямо → карточки прямо. Для постановки навыка."
+  },
+  {
+    value: "shuffleCards",
+    title: "2 — карточки вперемешку",
+    desc: "юниты по очереди → блоки прямо → карточки внутри блока случайно."
+  },
+  {
+    value: "shuffleBlocks",
+    title: "3 — блоки и карточки вперемешку",
+    desc: "юниты по очереди → блоки случайно → карточки внутри блока случайно."
+  },
+  {
+    value: "shuffleAll",
+    title: "4 — полный хаос",
+    desc: "все карточки из выбранных юнитов в один случайный поток. Экзамен."
+  }
 ]
 
 const dirOptions: { value: DirMode; label: string }[] = [

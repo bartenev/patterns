@@ -77,41 +77,36 @@ export function shuffle<T>(a: T[]): T[] {
   return arr
 }
 
+function blockToItems(deck: Deck, block: Block): QueueItem[] {
+  return block.cards.map((c) => ({
+    ...c,
+    deck: deck.name,
+    section: block.title || "",
+    mode: block.mode || "auto"
+  }))
+}
+
 export function buildQueue(selectedDecks: Deck[], order: OrderMode): QueueItem[] {
-  const items: QueueItem[] = []
+  if (order === "shuffleAll") {
+    const items: QueueItem[] = []
+    selectedDecks.forEach((d) => {
+      d.blocks.forEach((bl) => items.push(...blockToItems(d, bl)))
+    })
+    return shuffle(items).map((it) => ({ ...it, section: "" }))
+  }
+
+  const out: QueueItem[] = []
 
   selectedDecks.forEach((d) => {
-    d.blocks.forEach((bl) => {
-      const sec = bl.title || ""
-      bl.cards.forEach((c) => {
-        items.push({ ...c, deck: d.name, section: sec, mode: bl.mode || "auto" })
-      })
+    const blocks = order === "shuffleBlocks" ? shuffle([...d.blocks]) : d.blocks
+
+    blocks.forEach((bl) => {
+      const chunk = blockToItems(d, bl)
+      out.push(...(order === "straight" ? chunk : shuffle(chunk)))
     })
   })
 
-  if (order === "shuffleAll") {
-    const shuffled = shuffle(items)
-    shuffled.forEach((it) => { it.section = "" })
-    return shuffled
-  }
-
-  if (order === "shuffleBlocks") {
-    const out: QueueItem[] = []
-    selectedDecks.forEach((d) => {
-      d.blocks.forEach((bl) => {
-        const chunk: QueueItem[] = bl.cards.map((c) => ({
-          ...c,
-          deck: d.name,
-          section: bl.title || "",
-          mode: bl.mode || "auto"
-        }))
-        out.push(...shuffle(chunk))
-      })
-    })
-    return out
-  }
-
-  return items
+  return out
 }
 
 export function sideFor(card: QueueItem, dirMode: DirMode): SideView {
