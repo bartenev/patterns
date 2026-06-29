@@ -1,28 +1,25 @@
-<script setup>
+<script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue"
-import { loadDecksFromFolder } from "./lib/loadDecks.js"
-import {
-  buildQueue,
-  deckCount,
-  sideFor
-} from "./lib/patrones.js"
+import { loadDecksFromFolder } from "./lib/loadDecks"
+import { buildQueue, deckCount, sideFor } from "./lib/patrones"
+import type { AppView, Deck, DirMode, OrderMode, QueueItem } from "./types"
 
-const decks = ref([])
+const decks = ref<Deck[]>([])
 const loadErr = ref("")
-const view = ref("setup")
-const queue = ref([])
-const cur = ref(null)
+const view = ref<AppView>("setup")
+const queue = ref<QueueItem[]>([])
+const cur = ref<QueueItem | null>(null)
 const total = ref(0)
 const missed = ref(0)
 const missesRequeued = ref(0)
 const revealed = ref(false)
-const dirMode = ref("auto")
+const dirMode = ref<DirMode>("auto")
 const requeue = ref(true)
-const curSection = ref(null)
-const order = ref("file")
+const curSection = ref<string | null>(null)
+const order = ref<OrderMode>("file")
 const autospeak = ref(false)
 const isDark = ref(false)
-const esVoice = ref(null)
+const esVoice = ref<SpeechSynthesisVoice | null>(null)
 
 const cardSide = ref("")
 const cardPrompt = ref("")
@@ -31,13 +28,13 @@ const cardTag = ref("")
 const cardNote = ref("")
 const spanishText = ref("")
 
-const orderOptions = [
+const orderOptions: { value: OrderMode; title: string; desc: string }[] = [
   { value: "file", title: "Прямой порядок", desc: "как в файле — блоками, с разделителями. Для постановки навыка." },
   { value: "shuffleBlocks", title: "Перемешать внутри блоков", desc: "порядок блоков сохраняется, карточки внутри каждого — вперемешку." },
   { value: "shuffleAll", title: "Перемешать всё", desc: "все карточки из всех блоков в один случайный поток. Экзамен на выбор." }
 ]
 
-const dirOptions = [
+const dirOptions: { value: DirMode; label: string }[] = [
   { value: "auto", label: "по блоку" },
   { value: "ru", label: "RU → ES" },
   { value: "es", label: "ES → RU" }
@@ -66,11 +63,11 @@ const doneText = computed(() =>
     : `Пройдено ${total.value} пар · споткнулся ${missed.value} раз. Прогони ошибки ещё раз — закрепится.`
 )
 
-function toggleDeck(deck, on) {
+function toggleDeck(deck: Deck, on: boolean) {
   deck.on = on
 }
 
-function selectAll(on) {
+function selectAll(on: boolean) {
   decks.value.forEach((d) => { d.on = on })
 }
 
@@ -80,7 +77,7 @@ function pickVoice() {
   esVoice.value = vs.find((v) => /es-ES/i.test(v.lang)) || vs.find((v) => /^es/i.test(v.lang)) || null
 }
 
-function speak(text) {
+function speak(text: string) {
   if (!("speechSynthesis" in window) || !text) return
   speechSynthesis.cancel()
   const u = new SpeechSynthesisUtterance(text)
@@ -91,6 +88,7 @@ function speak(text) {
 }
 
 function applyCardView() {
+  if (!cur.value) return
   const v = sideFor(cur.value, dirMode.value)
   spanishText.value = v.spanish
   cardSide.value = v.side
@@ -106,7 +104,11 @@ function next() {
     return
   }
 
-  cur.value = queue.value.shift()
+  cur.value = queue.value.shift() ?? null
+  if (!cur.value) {
+    finish()
+    return
+  }
   revealed.value = false
 
   if (cur.value.section && cur.value.section !== curSection.value) {
@@ -135,8 +137,8 @@ function reveal() {
   if (autospeak.value) speak(spanishText.value)
 }
 
-function rate(knew) {
-  if (!revealed.value) return
+function rate(knew: boolean) {
+  if (!revealed.value || !cur.value) return
   if (!knew) {
     missed.value++
     missesRequeued.value++
@@ -160,7 +162,7 @@ function toggleTheme() {
   document.documentElement.setAttribute("data-theme", isDark.value ? "dark" : "light")
 }
 
-function onKeydown(e) {
+function onKeydown(e: KeyboardEvent) {
   if (view.value !== "drill") return
   if (e.code === "Space" || e.code === "Enter") {
     e.preventDefault()
