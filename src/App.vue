@@ -239,11 +239,6 @@ onUnmounted(() => {
 
   <main>
     <section v-show="view === 'setup'" class="wrap">
-      <p class="lead">
-        Юниты подхватываются из папки <code>decks/</code> — по одному <code>.json</code> на юнит.
-        Отметь галочками, что прогонять, выбери режим порядка — и запускай.
-      </p>
-
       <div class="deck-head">
         <h2>Юниты</h2>
         <div v-if="decks.length" class="tools">
