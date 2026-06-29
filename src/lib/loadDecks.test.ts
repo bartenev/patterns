@@ -23,6 +23,14 @@ describe("loadDecksFromModules", () => {
     expect(decks).toEqual([])
     expect(bad).toEqual(["broken.json"])
   })
+
+  it("handles bare filename paths", () => {
+    const { decks, bad } = loadDecksFromModules({
+      "solo.json": flatDeckJson
+    })
+    expect(bad).toEqual([])
+    expect(decks[0].fileName).toBe("solo.json")
+  })
 })
 
 describe("loadDecksFromFolder", () => {

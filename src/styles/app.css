@@ -302,6 +302,44 @@ li.deck .ct {
 
 .chk input { width: 16px; height: 16px; accent-color: var(--azulejo); }
 
+.timer-sel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  user-select: none;
+}
+
+.timer-sel select {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  accent-color: var(--azulejo);
+}
+
+.card-timer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--line);
+  border-radius: 0 0 var(--radius) var(--radius);
+  overflow: hidden;
+}
+
+.card-timer .fill {
+  height: 100%;
+  background: var(--azulejo);
+  width: 0;
+  transition: width linear;
+}
+
 .start {
   margin-top: 22px;
   width: 100%;

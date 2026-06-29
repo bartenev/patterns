@@ -1,6 +1,7 @@
 import { flushPromises, mount, VueWrapper } from "@vue/test-utils"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import type { Deck } from "./types"
+import type { Deck, QueueItem } from "./types"
+import * as patrones from "./lib/patrones"
 
 const { mockDecks, loadDecksFromFolderMock } = vi.hoisted(() => {
   const decks: Deck[] = [
@@ -40,8 +41,11 @@ vi.mock("./lib/loadDecks", () => ({
 
 import App from "./App.vue"
 
+let wrappers: VueWrapper[] = []
+
 async function mountApp() {
   const wrapper = mount(App)
+  wrappers.push(wrapper)
   await flushPromises()
   return wrapper
 }
@@ -54,6 +58,7 @@ async function startDrill(wrapper: VueWrapper) {
 
 describe("App", () => {
   beforeEach(() => {
+    wrappers = []
     loadDecksFromFolderMock.mockClear()
     loadDecksFromFolderMock.mockImplementation(() => ({
       decks: structuredClone(mockDecks),
@@ -72,6 +77,9 @@ describe("App", () => {
   })
 
   afterEach(() => {
+    wrappers.forEach((w) => w.unmount())
+    wrappers = []
+    vi.restoreAllMocks()
     vi.unstubAllGlobals()
   })
 
@@ -249,5 +257,165 @@ describe("App", () => {
     wrapper.unmount()
     expect(removeSpy).toHaveBeenCalledWith("keydown", expect.any(Function))
     removeSpy.mockRestore()
+  })
+
+  it("auto flips and advances on timer", async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = await mountApp()
+      const select = wrapper.get("select")
+      await select.setValue("2")
+      await flushPromises()
+      await startDrill(wrapper)
+      expect(wrapper.find(".card-timer").exists()).toBe(true)
+      expect(wrapper.find(".reveal").exists()).toBe(false)
+      expect(wrapper.text()).toContain("авто · 2 с")
+      await vi.advanceTimersByTimeAsync(2000)
+      await flushPromises()
+      expect(wrapper.text()).toContain("привет")
+      await vi.advanceTimersByTimeAsync(2000)
+      await flushPromises()
+      expect(wrapper.text()).toContain("¡Listo!")
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it("clears active timer when quitting drill", async () => {
+    vi.useFakeTimers()
+    const clearSpy = vi.spyOn(global, "clearTimeout")
+    try {
+      const wrapper = await mountApp()
+      await wrapper.get("select").setValue("3")
+      await flushPromises()
+      await startDrill(wrapper)
+      await wrapper.find(".bar .ghost").trigger("click")
+      await flushPromises()
+      expect(clearSpy).toHaveBeenCalled()
+    } finally {
+      clearSpy.mockRestore()
+      vi.useRealTimers()
+    }
+  })
+
+  it("autospeaks on timer reveal", async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = await mountApp()
+      await wrapper.get("select").setValue("1")
+      await wrapper.findAll("label.chk input")[0].setValue(true)
+      await flushPromises()
+      await startDrill(wrapper)
+      await vi.advanceTimersByTimeAsync(1000)
+      await flushPromises()
+      expect(speechSynthesis.speak).toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it("shows done text with misses", async () => {
+    const wrapper = await mountApp()
+    await startDrill(wrapper)
+    await wrapper.get(".reveal").trigger("click")
+    await wrapper.get(".missed").trigger("click")
+    await wrapper.get(".reveal").trigger("click")
+    await wrapper.get(".knew").trigger("click")
+    await flushPromises()
+    expect(wrapper.text()).toContain("споткнулся 1")
+    expect(wrapper.text()).toContain("Пройдено 1 пар")
+  })
+
+  it("does not requeue when option disabled", async () => {
+    const wrapper = await mountApp()
+    await wrapper.findAll("label.chk input")[1].setValue(false)
+    await flushPromises()
+    await startDrill(wrapper)
+    await wrapper.get(".reveal").trigger("click")
+    await wrapper.get(".missed").trigger("click")
+    await flushPromises()
+    expect(wrapper.text()).toContain("¡Listo!")
+    expect(wrapper.text()).toContain("споткнулся 1")
+    expect(wrapper.find(".done").isVisible()).toBe(true)
+  })
+
+  it("rates missed via arrow left", async () => {
+    const wrapper = await mountApp()
+    await startDrill(wrapper)
+    document.dispatchEvent(new KeyboardEvent("keydown", { code: "Space", bubbles: true }))
+    await flushPromises()
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }))
+    await flushPromises()
+    expect(wrapper.text()).toContain("hola")
+  })
+
+  it("ignores keyboard shortcuts on done screen", async () => {
+    const wrapper = await mountApp()
+    await startDrill(wrapper)
+    await wrapper.get(".reveal").trigger("click")
+    await wrapper.get(".knew").trigger("click")
+    const doneBefore = wrapper.find(".done p").text()
+    document.dispatchEvent(new KeyboardEvent("keydown", { code: "Space", bubbles: true }))
+    await flushPromises()
+    expect(wrapper.find(".done p").text()).toBe(doneBefore)
+  })
+
+  it("restarts drill from done screen", async () => {
+    const wrapper = await mountApp()
+    await startDrill(wrapper)
+    await wrapper.get(".reveal").trigger("click")
+    await wrapper.get(".knew").trigger("click")
+    await wrapper.get(".file-btn").trigger("click")
+    await flushPromises()
+    expect(wrapper.text()).toContain("hola")
+  })
+
+  it("speaks with selected voice", async () => {
+    const voice = { lang: "es-ES", name: "Monica" } as SpeechSynthesisVoice
+    vi.stubGlobal("speechSynthesis", {
+      cancel: vi.fn(),
+      speak: vi.fn(),
+      getVoices: vi.fn(() => [voice]),
+      onvoiceschanged: null
+    })
+    const wrapper = await mountApp()
+    if (speechSynthesis.onvoiceschanged) {
+      speechSynthesis.onvoiceschanged(new Event("voiceschanged"))
+    }
+    await startDrill(wrapper)
+    await wrapper.get(".reveal").trigger("click")
+    await wrapper.get(".spk").trigger("click")
+    const utterance = vi.mocked(SpeechSynthesisUtterance).mock.results.at(-1)?.value
+    expect(utterance.voice?.lang).toBe("es-ES")
+    expect(utterance.voice?.name).toBe("Monica")
+  })
+
+  it("finishes when queue head is invalid", async () => {
+    vi.spyOn(patrones, "buildQueue").mockReturnValueOnce([undefined as unknown as QueueItem])
+    const wrapper = await mountApp()
+    await startDrill(wrapper)
+    await flushPromises()
+    expect(wrapper.text()).toContain("¡Listo!")
+  })
+
+  it("hides section bar after sectionless card in shuffle all", async () => {
+    loadDecksFromFolderMock.mockImplementationOnce(() => ({
+      decks: [{
+        name: "Mix",
+        fileName: "mix.json",
+        on: false,
+        blocks: [
+          { title: "A", mode: "vocab", cards: [{ a: "one", b: "uno", note: "" }] },
+          { title: "B", mode: "vocab", cards: [{ a: "two", b: "dos", note: "" }] }
+        ]
+      }],
+      bad: []
+    }))
+    const wrapper = await mountApp()
+    await wrapper.find('input[value="shuffleAll"]').setValue(true)
+    await wrapper.find(".deck").trigger("click")
+    await wrapper.get(".start").trigger("click")
+    await flushPromises()
+    expect(wrapper.find(".secbar").exists()).toBe(false)
   })
 })

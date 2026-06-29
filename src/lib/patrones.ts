@@ -118,7 +118,13 @@ export function sideFor(card: QueueItem, dirMode: DirMode): SideView {
     return { prompt: card.a, answer: card.b, side: "подсказка", spanish: card.b }
   }
   if (mode === "es") {
-    return { prompt: card.b, answer: card.a, side: "español", spanish: card.b }
+    const isVocab = card.mode === "vocab" || card.mode === "ru"
+    return {
+      prompt: card.b,
+      answer: card.a,
+      side: "español",
+      spanish: isVocab ? "" : card.a
+    }
   }
   return { prompt: card.a, answer: card.b, side: "форма", spanish: card.b }
 }

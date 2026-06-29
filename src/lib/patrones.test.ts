@@ -20,6 +20,14 @@ describe("normalizeCard", () => {
     })
   })
 
+  it("parses object cards with a and b", () => {
+    expect(normalizeCard({ a: "x", b: "y", note: "z" })).toEqual({
+      a: "x",
+      b: "y",
+      note: "z"
+    })
+  })
+
   it("parses object cards with aliases", () => {
     expect(normalizeCard({ prompt: "x", answer: "y", note: "z" })).toEqual({
       a: "x",
@@ -62,6 +70,28 @@ describe("parseDeck", () => {
 
   it("returns null for empty deck", () => {
     expect(parseDeck({ blocks: [] }, "empty")).toBeNull()
+  })
+
+  it("uses title when unit is missing", () => {
+    const deck = parseDeck({ title: "From title", cards: [["a", "b"]] }, "fallback")
+    expect(deck?.name).toBe("From title")
+  })
+
+  it("skips blocks without cards array", () => {
+    const deck = parseDeck({
+      blocks: [{ title: "empty" }, { title: "ok", cards: [["a", "b"]] }]
+    }, "x")
+    expect(deck?.blocks).toHaveLength(1)
+  })
+
+  it("filters blocks with only invalid cards", () => {
+    expect(parseDeck({
+      blocks: [{ title: "bad", cards: [["", ""]] }]
+    }, "x")).toBeNull()
+  })
+
+  it("returns null for non-object input", () => {
+    expect(parseDeck(null as unknown as [], "x")).toBeNull()
   })
 })
 
@@ -136,6 +166,14 @@ describe("buildQueue", () => {
     expect(queue.every((q) => q.section === "")).toBe(true)
     expect(queue.map((q) => q.a).sort()).toEqual(["a1", "a2", "c1"])
   })
+
+  it("uses auto mode for blocks without explicit mode", () => {
+    const deck = makeDeck("U", [["a", "b"]], {
+      blocks: [{ title: "", mode: "", cards: [{ a: "a", b: "b", note: "" }] }]
+    })
+    const [item] = buildQueue([deck], "straight")
+    expect(item.mode).toBe("auto")
+  })
 })
 
 describe("sideFor", () => {
@@ -153,11 +191,40 @@ describe("sideFor", () => {
   })
 
   it("ru mode always ru to es", () => {
-    expect(sideFor(base, "ru").side).toBe("подсказка")
+    expect(sideFor(base, "ru")).toEqual({
+      prompt: "ru",
+      answer: "es",
+      side: "подсказка",
+      spanish: "es"
+    })
   })
 
-  it("es mode reverses prompt and answer", () => {
+  it("auto treats ru block mode like vocab", () => {
+    const v = sideFor({ ...base, mode: "ru" }, "auto")
+    expect(v.side).toBe("подсказка")
+  })
+
+  it("es mode with vocab does not tts russian answer", () => {
+    const v = sideFor({ ...base, mode: "vocab" }, "es")
+    expect(v).toEqual({ prompt: "es", answer: "ru", side: "español", spanish: "" })
+  })
+
+  it("es mode reverses prompt and answer for transform", () => {
     const v = sideFor(base, "es")
-    expect(v).toEqual({ prompt: "es", answer: "ru", side: "español", spanish: "es" })
+    expect(v).toEqual({ prompt: "es", answer: "ru", side: "español", spanish: "ru" })
+  })
+
+  it("es mode speaks revealed spanish answer for transform", () => {
+    const v = sideFor({
+      a: "el niño",
+      b: "la niña",
+      note: "",
+      deck: "d",
+      section: "",
+      mode: "transform"
+    }, "es")
+    expect(v.prompt).toBe("la niña")
+    expect(v.answer).toBe("el niño")
+    expect(v.spanish).toBe("el niño")
   })
 })

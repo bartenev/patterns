@@ -2,7 +2,8 @@
 import { computed, onMounted, onUnmounted, ref } from "vue"
 import { loadDecksFromFolder } from "./lib/loadDecks"
 import { buildQueue, deckCount, sideFor } from "./lib/patrones"
-import type { AppView, Deck, DirMode, OrderMode, QueueItem } from "./types"
+import { dequeue } from "./lib/queue"
+import type { AppView, Deck, DirMode, OrderMode, QueueItem, TimerSec } from "./types"
 
 const decks = ref<Deck[]>([])
 const loadErr = ref("")
@@ -18,8 +19,24 @@ const requeue = ref(true)
 const curSection = ref<string | null>(null)
 const order = ref<OrderMode>("straight")
 const autospeak = ref(false)
+const timerSec = ref<TimerSec>(0)
 const isDark = ref(true)
 const esVoice = ref<SpeechSynthesisVoice | null>(null)
+const timerFill = ref("0%")
+const timerTransition = ref("none")
+
+let timerId: ReturnType<typeof setTimeout> | null = null
+
+const timerOptions: { value: TimerSec; label: string }[] = [
+  { value: 0, label: "вручную" },
+  { value: 1, label: "1 сек" },
+  { value: 2, label: "2 сек" },
+  { value: 3, label: "3 сек" },
+  { value: 4, label: "4 сек" },
+  { value: 5, label: "5 сек" }
+]
+
+const isTimerMode = computed(() => timerSec.value > 0)
 
 const cardSide = ref("")
 const cardPrompt = ref("")
@@ -80,6 +97,42 @@ const doneText = computed(() =>
     : `Пройдено ${total.value} пар · споткнулся ${missed.value} раз. Прогони ошибки ещё раз — закрепится.`
 )
 
+function clearTimer() {
+  if (timerId !== null) {
+    clearTimeout(timerId)
+    timerId = null
+  }
+  timerFill.value = "0%"
+  timerTransition.value = "none"
+}
+
+function runTimerStep(onDone: () => void) {
+  clearTimer()
+  if (!timerSec.value || view.value !== "drill") return
+  const ms = timerSec.value * 1000
+  timerTransition.value = `width ${ms}ms linear`
+  timerFill.value = "0%"
+  requestAnimationFrame(() => {
+    timerFill.value = "100%"
+  })
+  timerId = setTimeout(() => {
+    timerId = null
+    onDone()
+  }, ms)
+}
+
+function startQuestionTimer() {
+  runTimerStep(() => {
+    if (!revealed.value) reveal()
+  })
+}
+
+function startAnswerTimer() {
+  runTimerStep(() => {
+    if (revealed.value) next()
+  })
+}
+
 function toggleDeck(deck: Deck, on: boolean) {
   deck.on = on
 }
@@ -121,7 +174,9 @@ function next() {
     return
   }
 
-  cur.value = queue.value.shift() ?? null
+  const { item, rest } = dequeue(queue.value)
+  queue.value = rest
+  cur.value = item
   if (!cur.value) {
     finish()
     return
@@ -135,9 +190,11 @@ function next() {
   }
 
   applyCardView()
+  startQuestionTimer()
 }
 
 function startCards() {
+  clearTimer()
   queue.value = buildQueue(selectedDecks.value, order.value)
   total.value = queue.value.length
   missed.value = 0
@@ -150,12 +207,18 @@ function startCards() {
 
 function reveal() {
   if (revealed.value) return
+  clearTimer()
   revealed.value = true
+  if (cur.value) {
+    spanishText.value = sideFor(cur.value, dirMode.value).spanish
+  }
   if (autospeak.value) speak(spanishText.value)
+  startAnswerTimer()
 }
 
 function rate(knew: boolean) {
   if (!revealed.value || !cur.value) return
+  clearTimer()
   if (!knew) {
     missed.value++
     missesRequeued.value++
@@ -167,10 +230,12 @@ function rate(knew: boolean) {
 }
 
 function finish() {
+  clearTimer()
   view.value = "done"
 }
 
 function quitDrill() {
+  clearTimer()
   view.value = "setup"
 }
 
@@ -221,6 +286,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  clearTimer()
   document.removeEventListener("keydown", onKeydown)
 })
 </script>
@@ -306,6 +372,14 @@ onUnmounted(() => {
           <label class="chk">
             <input v-model="requeue" type="checkbox"> повторять ошибки
           </label>
+          <label class="timer-sel">
+            таймер
+            <select v-model.number="timerSec">
+              <option v-for="opt in timerOptions" :key="opt.value" :value="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+          </label>
         </div>
 
         <button class="start" type="button" :disabled="startDisabled" @click="startCards">
@@ -336,25 +410,36 @@ onUnmounted(() => {
         <div v-if="revealed" class="answer">{{ cardAnswer }}</div>
         <div v-if="revealed && cardNote" class="note">{{ cardNote }}</div>
         <button
-          v-if="revealed"
+          v-if="revealed && !isTimerMode"
           class="spk"
           type="button"
           @click="speak(spanishText)"
         >
           🔊 произнести
         </button>
+        <div v-if="isTimerMode" class="card-timer">
+          <div
+            class="fill"
+            :style="{ width: timerFill, transition: timerTransition }"
+          />
+        </div>
       </div>
 
-      <div v-if="!revealed" class="controls">
+      <div v-if="!isTimerMode && !revealed" class="controls">
         <button class="reveal" type="button" @click="reveal">Показать ответ</button>
       </div>
-      <div v-else class="controls">
+      <div v-else-if="!isTimerMode" class="controls">
         <button class="missed" type="button" @click="rate(false)">Споткнулся</button>
         <button class="knew" type="button" @click="rate(true)">Знал</button>
       </div>
 
       <div class="hint">
-        <kbd>Пробел</kbd> показать ответ · <kbd>←</kbd> споткнулся · <kbd>→</kbd> знал · <kbd>S</kbd> озвучить · <kbd>Esc</kbd> выход
+        <template v-if="isTimerMode">
+          авто · {{ timerSec }} с на вопрос и ответ · <kbd>Esc</kbd> выход
+        </template>
+        <template v-else>
+          <kbd>Пробел</kbd> показать ответ · <kbd>←</kbd> споткнулся · <kbd>→</kbd> знал · <kbd>S</kbd> озвучить · <kbd>Esc</kbd> выход
+        </template>
       </div>
     </section>
 
