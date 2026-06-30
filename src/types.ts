@@ -54,6 +54,19 @@ export type OrderMode =
   | "shuffleCards"
   | "shuffleBlocks"
   | "shuffleAll"
+  | "mistakes"
+
+export interface StoredMistake {
+  deck: string
+  front: string
+  back: string
+  translation: string
+  note: string
+  section: string
+  mode: string
+  missCount: number
+  lastMissedAt: number
+}
 
 export type DirMode = "auto" | "ru" | "es"
 

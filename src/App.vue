@@ -2,6 +2,12 @@
 import { computed, onMounted, onUnmounted, ref } from "vue"
 import { loadDecksFromFolder } from "./lib/loadDecks"
 import { buildQueue, deckCount, sideFor } from "./lib/patrones"
+import {
+  buildMistakesQueue,
+  mistakeCount as getMistakeCount,
+  recordMistake,
+  removeMistake
+} from "./lib/mistakes"
 import { dequeue } from "./lib/queue"
 import type { AppView, Deck, DirMode, OrderMode, QueueItem, TimerSec } from "./types"
 
@@ -25,6 +31,7 @@ const esVoice = ref<SpeechSynthesisVoice | null>(null)
 const timerFill = ref("0%")
 const timerTransition = ref("none")
 const timerPaused = ref(false)
+const storedMistakeCount = ref(0)
 
 let timerId: ReturnType<typeof setTimeout> | null = null
 let timerRunId = 0
@@ -78,6 +85,11 @@ const orderOptions: { value: OrderMode; title: string; desc: string }[] = [
     value: "shuffleAll",
     title: "4 — полный хаос",
     desc: "все карточки из выбранных юнитов в один случайный поток. Экзамен."
+  },
+  {
+    value: "mistakes",
+    title: "5 — только ошибки",
+    desc: "карточки, в которых споткнулся раньше. Знал — убирается из банка."
   }
 ]
 
@@ -89,12 +101,20 @@ const dirOptions: { value: DirMode; label: string }[] = [
 
 const selectedDecks = computed(() => decks.value.filter((d) => d.on))
 const totalSelected = computed(() => selectedDecks.value.reduce((s, d) => s + deckCount(d), 0))
-const startDisabled = computed(() => totalSelected.value === 0)
-const startLabel = computed(() =>
-  totalSelected.value
+const isMistakesMode = computed(() => order.value === "mistakes")
+const startDisabled = computed(() =>
+  isMistakesMode.value ? storedMistakeCount.value === 0 : totalSelected.value === 0
+)
+const startLabel = computed(() => {
+  if (isMistakesMode.value) {
+    return storedMistakeCount.value
+      ? `Повторить ошибки → ${storedMistakeCount.value} пар`
+      : "Нет сохранённых ошибок"
+  }
+  return totalSelected.value
     ? `Начать прогон → ${totalSelected.value} пар`
     : "Выбери хотя бы один юнит"
-)
+})
 
 const showSecbar = computed(() => Boolean(curSection.value))
 const fillWidth = computed(() => {
@@ -208,6 +228,17 @@ function onCardClick() {
   else pauseTimer()
 }
 
+function refreshMistakeCount() {
+  storedMistakeCount.value = getMistakeCount()
+}
+
+function orderOptionTitle(value: OrderMode, title: string) {
+  if (value === "mistakes") {
+    return `5 — только ошибки (${storedMistakeCount.value})`
+  }
+  return title
+}
+
 function toggleDeck(deck: Deck, on: boolean) {
   deck.on = on
 }
@@ -279,7 +310,9 @@ function startAnswerTimer() {
 
 function startCards() {
   clearTimer()
-  queue.value = buildQueue(selectedDecks.value, order.value)
+  queue.value = isMistakesMode.value
+    ? buildMistakesQueue()
+    : buildQueue(selectedDecks.value, order.value)
   total.value = queue.value.length
   missed.value = 0
   missesRequeued.value = 0
@@ -306,9 +339,14 @@ function rate(knew: boolean) {
   if (!knew) {
     missed.value++
     missesRequeued.value++
-    if (requeue.value) {
+    recordMistake(cur.value)
+    refreshMistakeCount()
+    if (requeue.value && !isMistakesMode.value) {
       queue.value.push({ ...cur.value, section: "" })
     }
+  } else if (isMistakesMode.value) {
+    removeMistake(cur.value)
+    refreshMistakeCount()
   }
   next()
 }
@@ -355,6 +393,7 @@ onMounted(() => {
 
   const { decks: loaded, bad } = loadDecksFromFolder()
   decks.value = loaded
+  refreshMistakeCount()
 
   if (bad.length) {
     loadErr.value = `Не удалось разобрать: ${bad.join(", ")}`
@@ -431,7 +470,7 @@ onUnmounted(() => {
             >
               <input v-model="order" type="radio" name="order" :value="opt.value">
               <span>
-                <span class="t">{{ opt.title }}</span>
+                <span class="t">{{ orderOptionTitle(opt.value, opt.title) }}</span>
                 <span class="d">{{ opt.desc }}</span>
               </span>
             </label>
@@ -453,7 +492,7 @@ onUnmounted(() => {
           <label class="chk">
             <input v-model="autospeak" type="checkbox"> озвучивать ответ
           </label>
-          <label class="chk">
+          <label v-if="!isMistakesMode" class="chk">
             <input v-model="requeue" type="checkbox"> повторять ошибки
           </label>
           <label class="timer-sel">

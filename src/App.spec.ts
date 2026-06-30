@@ -2,6 +2,7 @@ import { flushPromises, mount, VueWrapper } from "@vue/test-utils"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import type { Deck, QueueItem } from "./types"
 import * as patrones from "./lib/patrones"
+import { recordMistake } from "./lib/mistakes"
 
 const { mockDecks, loadDecksFromFolderMock } = vi.hoisted(() => {
   const decks: Deck[] = [
@@ -68,6 +69,7 @@ describe("App", () => {
       bad: []
     }))
     document.documentElement.removeAttribute("data-theme")
+    localStorage.clear()
     vi.stubGlobal("speechSynthesis", {
       cancel: vi.fn(),
       speak: vi.fn(),
@@ -173,10 +175,11 @@ describe("App", () => {
     expect(wrapper.text()).toContain("☾ Тема")
   })
 
-  it("shows four order modes", async () => {
+  it("shows five order modes", async () => {
     const wrapper = await mountApp()
     expect(wrapper.text()).toContain("1 — всё по порядку")
     expect(wrapper.text()).toContain("4 — полный хаос")
+    expect(wrapper.text()).toContain("5 — только ошибки")
   })
 
   it("shows error when folder has no decks", async () => {
@@ -428,5 +431,40 @@ describe("App", () => {
     await wrapper.get(".start").trigger("click")
     await flushPromises()
     expect(wrapper.find(".secbar").exists()).toBe(false)
+  })
+
+  it("stores mistake in localStorage on miss", async () => {
+    const wrapper = await mountApp()
+    await startDrill(wrapper)
+    await wrapper.get(".reveal").trigger("click")
+    await wrapper.get(".missed").trigger("click")
+    await flushPromises()
+    expect(wrapper.text()).toContain("5 — только ошибки (1)")
+    expect(localStorage.getItem("patrones:mistakes")).toContain("hola")
+  })
+
+  it("runs mistakes-only mode and removes card when knew", async () => {
+    recordMistake({
+      front: "hola",
+      back: "привет",
+      translation: "",
+      note: "",
+      deck: "Unit B",
+      section: "",
+      mode: "vocab"
+    })
+
+    const wrapper = await mountApp()
+    await wrapper.find('input[value="mistakes"]').setValue(true)
+    await flushPromises()
+    expect(wrapper.text()).toContain("Повторить ошибки → 1 пар")
+    await wrapper.get(".start").trigger("click")
+    await flushPromises()
+    expect(wrapper.text()).toContain("hola")
+    await wrapper.get(".reveal").trigger("click")
+    await wrapper.get(".knew").trigger("click")
+    await flushPromises()
+    expect(wrapper.text()).toContain("¡Listo!")
+    expect(localStorage.getItem("patrones:mistakes")).toBeNull()
   })
 })

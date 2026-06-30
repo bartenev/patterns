@@ -111,7 +111,7 @@ main {
 .wrap {
   width: 100%;
   max-width: 720px;
-  padding: 24px 20px 60px;
+  padding: 20px;
 }
 
 .lead {
@@ -521,7 +521,7 @@ kbd {
   color: var(--ink);
 }
 
-.done { text-align: center; padding-top: 30px; }
+.done { text-align: center; }
 .done h2 { font-family: var(--serif); font-size: 30px; margin: 0 0 6px; }
 .done p { color: var(--muted); margin: 0 0 24px; }
 .done .row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
