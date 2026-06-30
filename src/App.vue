@@ -55,6 +55,7 @@ const cardPrompt = ref("")
 const cardAnswer = ref("")
 const cardTag = ref("")
 const cardNote = ref("")
+const cardTranslation = ref("")
 const spanishText = ref("")
 
 const orderOptions: { value: OrderMode; title: string; desc: string }[] = [
@@ -240,6 +241,7 @@ function applyCardView() {
   cardAnswer.value = v.answer
   cardTag.value = cur.value.deck || ""
   cardNote.value = cur.value.note || ""
+  cardTranslation.value = v.translation || ""
 }
 
 function next() {
@@ -493,6 +495,7 @@ onUnmounted(() => {
         <span class="tag">{{ cardTag }}</span>
         <div class="side">{{ cardSide }}</div>
         <div class="prompt">{{ cardPrompt }}</div>
+        <div v-if="!revealed && cardTranslation" class="translation">{{ cardTranslation }}</div>
         <div v-if="revealed" class="answer">{{ cardAnswer }}</div>
         <div v-if="revealed && cardNote" class="note">{{ cardNote }}</div>
         <button

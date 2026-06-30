@@ -5,50 +5,50 @@
       "title": "Регулярные: -o/-e → -a",
       "mode": "transform",
       "cards": [
-        ["el niño", "la niña"],
-        ["el cocinero", "la cocinera"],
-        ["el camarero", "la camarera"],
-        ["el dependiente", "la dependienta"],
-        ["el profesor", "la profesora"],
-        ["el director", "la directora"],
-        ["el doctor", "la doctora"],
-        ["el señor", "la señora"],
-        ["el escritor", "la escritora"],
-        ["el bailarín", "la bailarina"]
+        { "front": "el niño", "back": "la niña", "translation": "ребёнок / мальчик" },
+        { "front": "el cocinero", "back": "la cocinera", "translation": "повар" },
+        { "front": "el camarero", "back": "la camarera", "translation": "официант" },
+        { "front": "el dependiente", "back": "la dependienta", "translation": "продавец" },
+        { "front": "el profesor", "back": "la profesora", "translation": "преподаватель" },
+        { "front": "el director", "back": "la directora", "translation": "директор" },
+        { "front": "el doctor", "back": "la doctora", "translation": "врач" },
+        { "front": "el señor", "back": "la señora", "translation": "господин" },
+        { "front": "el escritor", "back": "la escritora", "translation": "писатель" },
+        { "front": "el bailarín", "back": "la bailarina", "translation": "танцор" }
       ]
     },
     {
       "title": "Не меняются — только артикль",
       "mode": "transform",
       "cards": [
-        ["el estudiante", "la estudiante", "-ante не меняется"],
-        ["el pianista", "la pianista", "-ista не меняется"],
-        ["el taxista", "la taxista", "-ista не меняется"],
-        ["el piloto", "la piloto", "исключение"],
-        ["el paciente", "la paciente", "исключение"],
-        ["el modelo", "la modelo", "исключение"],
-        ["el joven", "la joven", "не меняется"]
+        { "front": "el estudiante", "back": "la estudiante", "note": "-ante не меняется", "translation": "студент" },
+        { "front": "el pianista", "back": "la pianista", "note": "-ista не меняется", "translation": "пианист" },
+        { "front": "el taxista", "back": "la taxista", "note": "-ista не меняется", "translation": "таксист" },
+        { "front": "el piloto", "back": "la piloto", "note": "исключение", "translation": "пилот" },
+        { "front": "el paciente", "back": "la paciente", "note": "исключение", "translation": "пациент" },
+        { "front": "el modelo", "back": "la modelo", "note": "исключение", "translation": "модель" },
+        { "front": "el joven", "back": "la joven", "note": "не меняется", "translation": "юноша / молодой человек" }
       ]
     },
     {
       "title": "Особые формы",
       "mode": "transform",
       "cards": [
-        ["el actor", "la actriz"],
-        ["el rey", "la reina"],
-        ["el alcalde", "la alcaldesa"]
+        { "front": "el actor", "back": "la actriz", "translation": "актёр" },
+        { "front": "el rey", "back": "la reina", "translation": "король" },
+        { "front": "el alcalde", "back": "la alcaldesa", "translation": "мэр" }
       ]
     },
     {
       "title": "Разные слова (лексика)",
       "mode": "vocab",
       "cards": [
-        ["муж / супруг", "el marido", "ж.р. → la mujer"],
-        ["жена", "la mujer"],
-        ["отец", "el padre", "ж.р. → la madre"],
-        ["мать", "la madre"],
-        ["папа", "el papá", "ж.р. → la mamá"],
-        ["мама", "la mamá"]
+        { "front": "муж / супруг", "back": "el marido", "note": "ж.р. → la mujer" },
+        { "front": "жена", "back": "la mujer" },
+        { "front": "отец", "back": "el padre", "note": "ж.р. → la madre" },
+        { "front": "мать", "back": "la madre" },
+        { "front": "папа", "back": "el papá", "note": "ж.р. → la mamá" },
+        { "front": "мама", "back": "la mamá" }
       ]
     }
   ]

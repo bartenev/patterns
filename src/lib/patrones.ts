@@ -11,30 +11,25 @@ import type {
 } from "../types"
 
 export function normalizeCard(c: CardRaw): Card | null {
-  if (Array.isArray(c)) {
-    return { a: (c[0] || "").trim(), b: (c[1] || "").trim(), note: (c[2] || "").trim() }
+  if (!c || typeof c !== "object") return null
+
+  const front = (c.front || "").trim()
+  const back = (c.back || "").trim()
+  if (!front || !back) return null
+
+  return {
+    front,
+    back,
+    translation: (c.translation || "").trim(),
+    note: (c.note || "").trim()
   }
-  if (c && typeof c === "object") {
-    return {
-      a: (c.a || c.prompt || "").trim(),
-      b: (c.b || c.answer || "").trim(),
-      note: (c.note || "").trim()
-    }
-  }
-  return null
 }
 
 export function parseDeck(obj: DeckJsonInput, fallbackName: string): Deck | null {
   let name = fallbackName
   let blocks: Block[] = []
 
-  if (Array.isArray(obj)) {
-    blocks = [{
-      title: "",
-      mode: "auto",
-      cards: obj.map(normalizeCard).filter((c): c is Card => Boolean(c))
-    }]
-  } else if (obj && typeof obj === "object") {
+  if (obj && typeof obj === "object") {
     name = obj.unit || obj.title || fallbackName
     if (Array.isArray(obj.blocks)) {
       blocks = obj.blocks
@@ -43,14 +38,14 @@ export function parseDeck(obj: DeckJsonInput, fallbackName: string): Deck | null
           mode: bl.mode || "auto",
           cards: (Array.isArray(bl.cards) ? bl.cards : [])
             .map(normalizeCard)
-            .filter((c): c is Card => Boolean(c && c.a && c.b))
+            .filter((c): c is Card => Boolean(c))
         }))
         .filter((bl) => bl.cards.length > 0)
     } else if (Array.isArray(obj.cards)) {
       blocks = [{
         title: "",
         mode: obj.mode || "auto",
-        cards: obj.cards.map(normalizeCard).filter((c): c is Card => Boolean(c && c.a && c.b))
+        cards: obj.cards.map(normalizeCard).filter((c): c is Card => Boolean(c))
       }]
     }
   }
@@ -114,17 +109,33 @@ export function sideFor(card: QueueItem, dirMode: DirMode): SideView {
   if (mode === "auto") {
     mode = (card.mode === "vocab" || card.mode === "ru") ? "ru" : "es-fwd"
   }
+
+  const translation = card.translation
+
   if (mode === "ru") {
-    return { prompt: card.a, answer: card.b, side: "подсказка", spanish: card.b }
+    return {
+      prompt: card.front,
+      answer: card.back,
+      side: "подсказка",
+      spanish: card.back,
+      translation
+    }
   }
   if (mode === "es") {
     const isVocab = card.mode === "vocab" || card.mode === "ru"
     return {
-      prompt: card.b,
-      answer: card.a,
+      prompt: card.back,
+      answer: card.front,
       side: "español",
-      spanish: isVocab ? "" : card.a
+      spanish: isVocab ? "" : card.front,
+      translation
     }
   }
-  return { prompt: card.a, answer: card.b, side: "форма", spanish: card.b }
+  return {
+    prompt: card.front,
+    answer: card.back,
+    side: "форма",
+    spanish: card.back,
+    translation
+  }
 }

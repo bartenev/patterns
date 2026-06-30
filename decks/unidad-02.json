@@ -1,0 +1,127 @@
+{
+  "unit": "Unidad 2 — Masculino / femenino (предметы и животные)",
+  "blocks": [
+    {
+      "title": "Регулярные: -o → мужской род",
+      "mode": "vocab",
+      "cards": [
+        { "front": "книга",     "back": "el libro" },
+        { "front": "телефон",   "back": "el teléfono" },
+        { "front": "стакан",    "back": "el vaso" },
+        { "front": "рука (от плеча)", "back": "el brazo", "note": "brazo = рука целиком" },
+        { "front": "музей",     "back": "el museo" },
+        { "front": "машина",    "back": "el carro", "note": "Лат. Ам.; в Испании el coche" }
+      ]
+    },
+    {
+      "title": "Регулярные: -a → женский род",
+      "mode": "vocab",
+      "cards": [
+        { "front": "дом",       "back": "la casa" },
+        { "front": "стул",      "back": "la silla" },
+        { "front": "стол",      "back": "la mesa" },
+        { "front": "коробка",   "back": "la caja" },
+        { "front": "тортилья / омлет", "back": "la tortilla" },
+        { "front": "лицо",      "back": "la cara" }
+      ]
+    },
+    {
+      "title": "Ловушки: -o, но женский / -a, но мужской",
+      "mode": "vocab",
+      "cards": [
+        { "front": "рука (кисть)", "back": "la mano",   "note": "-o, но ЖЕНСКИЙ" },
+        { "front": "фото",         "back": "la foto",   "note": "-o, но ЖЕНСКИЙ (от fotografía)" },
+        { "front": "мотоцикл",     "back": "la moto",   "note": "-o, но ЖЕНСКИЙ (от motocicleta)" },
+        { "front": "радио",        "back": "la radio",  "note": "-o, но ЖЕНСКИЙ" },
+        { "front": "день",         "back": "el día",    "note": "-a, но МУЖСКОЙ" },
+        { "front": "язык (речь)",  "back": "el idioma", "note": "-a, но МУЖСКОЙ" },
+        { "front": "карта",        "back": "el mapa",   "note": "-a, но МУЖСКОЙ" },
+        { "front": "проблема",     "back": "el problema","note": "-a, но МУЖСКОЙ" },
+        { "front": "пижама",       "back": "el pijama", "note": "-a, но МУЖСКОЙ" },
+        { "front": "планета",      "back": "el planeta","note": "-a, но МУЖСКОЙ" }
+      ]
+    },
+    {
+      "title": "Окончание подсказывает род: -ción/-sión/-dad/-tad → ж.р.",
+      "mode": "vocab",
+      "cards": [
+        { "front": "песня",        "back": "la canción",    "note": "-ción → ж.р." },
+        { "front": "комната",      "back": "la habitación", "note": "-ción → ж.р." },
+        { "front": "телевидение",  "back": "la televisión", "note": "-sión → ж.р." },
+        { "front": "город",        "back": "la ciudad",     "note": "-dad → ж.р." },
+        { "front": "университет",  "back": "la universidad","note": "-dad → ж.р." },
+        { "front": "свобода",      "back": "la libertad",   "note": "-tad → ж.р." }
+      ]
+    },
+    {
+      "title": "-e / согласная: запомнить род",
+      "mode": "vocab",
+      "cards": [
+        { "front": "понедельник", "back": "el lunes",      "note": "дни недели → м.р." },
+        { "front": "зонт",        "back": "el paraguas",   "note": "составное → м.р." },
+        { "front": "день рождения","back": "el cumpleaños", "note": "составное → м.р." },
+        { "front": "ресторан",    "back": "el restaurante" },
+        { "front": "машина (авто)","back": "el coche",     "note": "Испания" },
+        { "front": "отель",       "back": "el hotel" },
+        { "front": "карандаш",    "back": "el lápiz" },
+        { "front": "хлеб",        "back": "el pan" },
+        { "front": "ночь",        "back": "la noche",      "note": "согласная, но ж.р." },
+        { "front": "молоко",      "back": "la leche" },
+        { "front": "соль",        "back": "la sal",        "note": "согласная, но ж.р." },
+        { "front": "цветок",      "back": "la flor",       "note": "согласная, но ж.р." },
+        { "front": "свет",        "back": "la luz",        "note": "согласная, но ж.р." },
+        { "front": "класс / урок","back": "la clase" }
+      ]
+    },
+    {
+      "title": "Животные: пара мужской → женский",
+      "mode": "transform",
+      "cards": [
+        { "front": "el gato",    "back": "la gata",    "translation": "кот / кошка" },
+        { "front": "el perro",   "back": "la perra",   "translation": "пёс / собака" },
+        { "front": "el león",    "back": "la leona",   "translation": "лев / львица" },
+        { "front": "el caballo", "back": "la yegua",   "translation": "конь / кобыла", "note": "разные слова" },
+        { "front": "el toro",    "back": "la vaca",    "translation": "бык / корова", "note": "разные слова" },
+        { "front": "el gallo",   "back": "la gallina", "translation": "петух / курица" }
+      ]
+    },
+    {
+      "title": "Животные одного рода (запомнить артикль)",
+      "mode": "vocab",
+      "cards": [
+        { "front": "рыба",     "back": "el pez",       "note": "только м.р." },
+        { "front": "птица",    "back": "el pájaro",    "note": "только м.р." },
+        { "front": "мышь",     "back": "el ratón",     "note": "только м.р." },
+        { "front": "кролик",   "back": "el conejo",    "note": "только м.р." },
+        { "front": "жираф",    "back": "la jirafa",    "note": "только ж.р." },
+        { "front": "змея",     "back": "la serpiente", "note": "только ж.р." },
+        { "front": "лягушка",  "back": "la rana",      "note": "только ж.р." },
+        { "front": "сардина",  "back": "la sardina",   "note": "только ж.р." }
+      ]
+    },
+    {
+      "title": "Слова из упражнений (лексика + род)",
+      "mode": "vocab",
+      "cards": [
+        { "front": "кровать",     "back": "la cama" },
+        { "front": "тетрадь",     "back": "el cuaderno" },
+        { "front": "выражение",   "back": "la expresión", "note": "-sión → ж.р." },
+        { "front": "лампа",       "back": "la lámpara" },
+        { "front": "минута",      "back": "el minuto" },
+        { "front": "страница",    "back": "la página" },
+        { "front": "окно",        "back": "la ventana" },
+        { "front": "пятница",     "back": "el viernes", "note": "день недели → м.р." },
+        { "front": "внимание",    "back": "la atención", "note": "-ción → ж.р." },
+        { "front": "дерево",      "back": "el árbol" },
+        { "front": "словарь",     "back": "el diccionario" },
+        { "front": "горилла",     "back": "el gorila", "note": "м.р., хотя -a" },
+        { "front": "больница",    "back": "el hospital" },
+        { "front": "ключ",        "back": "la llave", "note": "ж.р." },
+        { "front": "бабочка",     "back": "la mariposa" },
+        { "front": "нос",         "back": "la nariz", "note": "ж.р." },
+        { "front": "вилка",       "back": "el tenedor" },
+        { "front": "поезд",       "back": "el tren" }
+      ]
+    }
+  ]
+}

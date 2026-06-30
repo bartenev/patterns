@@ -462,6 +462,13 @@ li.deck .ct {
   max-width: 46ch;
 }
 
+.translation {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 16px;
+  max-width: 46ch;
+}
+
 .spk {
   margin-top: 18px;
   border: 1px solid var(--line);

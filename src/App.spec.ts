@@ -12,7 +12,7 @@ const { mockDecks, loadDecksFromFolderMock } = vi.hoisted(() => {
       blocks: [{
         title: "Блок",
         mode: "transform",
-        cards: [{ a: "el niño", b: "la niña", note: "" }]
+        cards: [{ front: "el niño", back: "la niña", translation: "", note: "" }]
       }]
     },
     {
@@ -22,7 +22,7 @@ const { mockDecks, loadDecksFromFolderMock } = vi.hoisted(() => {
       blocks: [{
         title: "Блок",
         mode: "vocab",
-        cards: [{ a: "hola", b: "привет", note: "" }]
+        cards: [{ front: "hola", back: "привет", translation: "", note: "" }]
       }]
     }
   ]
@@ -231,7 +231,12 @@ describe("App", () => {
         blocks: [{
           title: "Секция",
           mode: "transform",
-          cards: [{ a: "forma", b: "respuesta", note: "подсказка" }]
+          cards: [{
+            front: "forma",
+            back: "respuesta",
+            translation: "перевод",
+            note: "подсказка"
+          }]
         }]
       }],
       bad: []
@@ -241,6 +246,8 @@ describe("App", () => {
     await wrapper.get(".start").trigger("click")
     await flushPromises()
     expect(wrapper.text()).toContain("Секция")
+    expect(wrapper.text()).toContain("перевод")
+    expect(wrapper.text()).not.toContain("подсказка")
     await wrapper.get(".reveal").trigger("click")
     expect(wrapper.text()).toContain("подсказка")
     expect(wrapper.find(".spk").exists()).toBe(true)
@@ -409,8 +416,8 @@ describe("App", () => {
         fileName: "mix.json",
         on: false,
         blocks: [
-          { title: "A", mode: "vocab", cards: [{ a: "one", b: "uno", note: "" }] },
-          { title: "B", mode: "vocab", cards: [{ a: "two", b: "dos", note: "" }] }
+          { title: "A", mode: "vocab", cards: [{ front: "one", back: "uno", translation: "", note: "" }] },
+          { title: "B", mode: "vocab", cards: [{ front: "two", back: "dos", translation: "", note: "" }] }
         ]
       }],
       bad: []

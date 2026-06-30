@@ -1,20 +1,18 @@
 export interface Card {
-  a: string
-  b: string
+  front: string
+  back: string
+  translation: string
   note: string
 }
 
-export type CardTuple = [string?, string?, string?]
-
 export interface CardObject {
-  a?: string
-  prompt?: string
-  b?: string
-  answer?: string
+  front?: string
+  back?: string
+  translation?: string
   note?: string
 }
 
-export type CardRaw = CardTuple | CardObject
+export type CardRaw = CardObject
 
 export interface Block {
   title: string
@@ -36,7 +34,7 @@ export interface DeckJson {
   cards?: CardRaw[]
 }
 
-export type DeckJsonInput = DeckJson | CardRaw[]
+export type DeckJsonInput = DeckJson
 
 export interface Deck {
   name: string
@@ -68,6 +66,7 @@ export interface SideView {
   answer: string
   side: string
   spanish: string
+  translation: string
 }
 
 export interface LoadDecksResult {
