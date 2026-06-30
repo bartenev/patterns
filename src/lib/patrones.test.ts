@@ -5,6 +5,7 @@ import {
   deckCount,
   normalizeCard,
   parseDeck,
+  reviewCount,
   shuffle,
   sideFor
 } from "./patrones"
@@ -153,6 +154,25 @@ describe("shuffle", () => {
   })
 })
 
+describe("reviewCount", () => {
+  it("sums blocks in selected decks", () => {
+    const deck = makeDeck("u", [["a", "b"], ["c", "d"]], {
+      blocks: [
+        { title: "1", mode: "auto", cards: [{ front: "a", back: "b", translation: "", note: "" }] },
+        {
+          title: "2",
+          mode: "auto",
+          cards: [
+            { front: "c", back: "d", translation: "", note: "" },
+            { front: "e", back: "f", translation: "", note: "" }
+          ]
+        }
+      ]
+    })
+    expect(reviewCount([deck])).toBe(2)
+  })
+})
+
 describe("buildQueue", () => {
   const deckA = makeDeck("Unit A", [["a1", "b1"], ["a2", "b2"]], { blockTitle: "A-block" })
   const deckB = makeDeck("Unit B", [["c1", "d1"]], { blockTitle: "B-block" })
@@ -189,6 +209,45 @@ describe("buildQueue", () => {
     expect(queue).toHaveLength(3)
     expect(queue.every((q) => q.section === "")).toBe(true)
     expect(queue.map((q) => q.front).sort()).toEqual(["a1", "a2", "c1"])
+  })
+
+  it("review: picks one random card per block from each deck", () => {
+    const multiBlock = makeDeck("Multi", [["x", "y"]], {
+      blocks: [
+        {
+          title: "First",
+          mode: "auto",
+          cards: [
+            { front: "f1", back: "f2", translation: "", note: "" },
+            { front: "f3", back: "f4", translation: "", note: "" }
+          ]
+        },
+        { title: "Second", mode: "auto", cards: [{ front: "s1", back: "s2", translation: "", note: "" }] }
+      ]
+    })
+    const queue = buildQueue([deckA, multiBlock], "review")
+    expect(queue).toHaveLength(3)
+    expect(queue.map((q) => q.section).sort()).toEqual(["A-block", "First", "Second"])
+  })
+
+  it("review: picks first card when random returns 0", () => {
+    const multiBlock = makeDeck("Multi", [["x", "y"]], {
+      blocks: [
+        {
+          title: "First",
+          mode: "auto",
+          cards: [
+            { front: "f1", back: "f2", translation: "", note: "" },
+            { front: "f3", back: "f4", translation: "", note: "" }
+          ]
+        }
+      ]
+    })
+    vi.spyOn(Math, "random").mockReturnValue(0)
+    const queue = buildQueue([multiBlock], "review")
+    expect(queue).toHaveLength(1)
+    expect(queue[0].front).toBe("f1")
+    vi.restoreAllMocks()
   })
 
   it("uses auto mode for blocks without explicit mode", () => {

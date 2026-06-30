@@ -63,6 +63,10 @@ export function deckCount(d: Deck): number {
   return d.blocks.reduce((s, b) => s + b.cards.length, 0)
 }
 
+export function reviewCount(decks: Deck[]): number {
+  return decks.reduce((s, d) => s + d.blocks.length, 0)
+}
+
 export function shuffle<T>(a: T[]): T[] {
   const arr = [...a]
   for (let i = arr.length - 1; i > 0; i--) {
@@ -82,6 +86,20 @@ function blockToItems(deck: Deck, block: Block): QueueItem[] {
 }
 
 export function buildQueue(selectedDecks: Deck[], order: OrderMode): QueueItem[] {
+  if (order === "review") {
+    const out: QueueItem[] = []
+    selectedDecks.forEach((d) => {
+      d.blocks.forEach((bl) => {
+        const chunk = blockToItems(d, bl)
+        if (chunk.length) {
+          const idx = (Math.random() * chunk.length) | 0
+          out.push(chunk[idx])
+        }
+      })
+    })
+    return shuffle(out)
+  }
+
   if (order === "shuffleAll") {
     const items: QueueItem[] = []
     selectedDecks.forEach((d) => {

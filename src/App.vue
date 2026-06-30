@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue"
 import { loadDecksFromFolder } from "./lib/loadDecks"
-import { buildQueue, deckCount, sideFor } from "./lib/patrones"
+import { buildQueue, deckCount, reviewCount, sideFor } from "./lib/patrones"
 import {
   buildMistakesQueue,
   mistakeCount as getMistakeCount,
@@ -90,6 +90,11 @@ const orderOptions: { value: OrderMode; title: string; desc: string }[] = [
     value: "mistakes",
     title: "5 — только ошибки",
     desc: "карточки, в которых споткнулся раньше. Знал — убирается из банка."
+  },
+  {
+    value: "review",
+    title: "6 — ревью",
+    desc: "по одной случайной карточке из каждого блока выбранных юнитов. Быстрая проверка."
   }
 ]
 
@@ -101,15 +106,24 @@ const dirOptions: { value: DirMode; label: string }[] = [
 
 const selectedDecks = computed(() => decks.value.filter((d) => d.on))
 const totalSelected = computed(() => selectedDecks.value.reduce((s, d) => s + deckCount(d), 0))
+const selectedReviewCount = computed(() => reviewCount(selectedDecks.value))
 const isMistakesMode = computed(() => order.value === "mistakes")
-const startDisabled = computed(() =>
-  isMistakesMode.value ? storedMistakeCount.value === 0 : totalSelected.value === 0
-)
+const isReviewMode = computed(() => order.value === "review")
+const startDisabled = computed(() => {
+  if (isMistakesMode.value) return storedMistakeCount.value === 0
+  if (isReviewMode.value) return selectedReviewCount.value === 0
+  return totalSelected.value === 0
+})
 const startLabel = computed(() => {
   if (isMistakesMode.value) {
     return storedMistakeCount.value
       ? `Повторить ошибки → ${storedMistakeCount.value} пар`
       : "Нет сохранённых ошибок"
+  }
+  if (isReviewMode.value) {
+    return selectedReviewCount.value
+      ? `Начать ревью → ${selectedReviewCount.value} пар`
+      : "Выбери хотя бы один юнит"
   }
   return totalSelected.value
     ? `Начать прогон → ${totalSelected.value} пар`

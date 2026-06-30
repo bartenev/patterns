@@ -182,11 +182,12 @@ describe("App", () => {
     await wrapper.find(".deck input").trigger("click")
   })
 
-  it("shows five order modes", async () => {
+  it("shows six order modes", async () => {
     const wrapper = await mountApp()
     expect(wrapper.text()).toContain("1 — всё по порядку")
     expect(wrapper.text()).toContain("4 — полный хаос")
     expect(wrapper.text()).toContain("5 — только ошибки")
+    expect(wrapper.text()).toContain("6 — ревью")
   })
 
   it("shows error when folder has no decks", async () => {

@@ -56,6 +56,7 @@ export type OrderMode =
   | "shuffleBlocks"
   | "shuffleAll"
   | "mistakes"
+  | "review"
 
 export interface StoredMistake {
   deck: string
