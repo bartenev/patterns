@@ -1,0 +1,88 @@
+{
+  "unit": "Unidad 4 — Artículo indeterminado (un / una / unos / unas)",
+  "blocks": [
+    {
+      "title": "un + существительное (м.р., ед.)",
+      "mode": "vocab",
+      "cards": [
+        { "front": "часы (наручные)", "back": "un reloj" },
+        { "front": "зонт",        "back": "un paraguas" },
+        { "front": "карандаш",    "back": "un lápiz" },
+        { "front": "официант",    "back": "un camarero" },
+        { "front": "кинотеатр",   "back": "un cine", "note": "cine → м.р." },
+        { "front": "дыня",        "back": "un melón" },
+        { "front": "река",        "back": "un río" },
+        { "front": "вид спорта",  "back": "un deporte" },
+        { "front": "футболист",   "back": "un futbolista", "note": "-ista, но он → un" }
+      ]
+    },
+    {
+      "title": "una + существительное (ж.р., ед.)",
+      "mode": "vocab",
+      "cards": [
+        { "front": "цветок",      "back": "una flor", "note": "flor → ж.р." },
+        { "front": "комната",     "back": "una habitación" },
+        { "front": "девушка",     "back": "una chica" },
+        { "front": "преподавательница","back": "una profesora" },
+        { "front": "город",       "back": "una ciudad" },
+        { "front": "билет / вход","back": "una entrada" },
+        { "front": "роза",        "back": "una rosa" },
+        { "front": "фрукт",       "back": "una fruta" },
+        { "front": "дочь",        "back": "una hija" },
+        { "front": "писательница","back": "una escritora" },
+        { "front": "художница",   "back": "una pintora" }
+      ]
+    },
+    {
+      "title": "unos + существительное (м.р., мн.)",
+      "mode": "vocab",
+      "cards": [
+        { "front": "часы (неск.)", "back": "unos relojes" },
+        { "front": "ученики",     "back": "unos alumnos" },
+        { "front": "брюки",       "back": "unos pantalones", "note": "форма только мн." },
+        { "front": "джинсы",      "back": "unos vaqueros", "note": "форма только мн." },
+        { "front": "книги",       "back": "unos libros" },
+        { "front": "ботинки",     "back": "unos zapatos" }
+      ]
+    },
+    {
+      "title": "unas + существительное (ж.р., мн.)",
+      "mode": "vocab",
+      "cards": [
+        { "front": "стулья",      "back": "unas sillas" },
+        { "front": "аудитории",   "back": "unas aulas", "note": "во мн. → unas" },
+        { "front": "ножницы",     "back": "unas tijeras", "note": "форма только мн." },
+        { "front": "очки",        "back": "unas gafas", "note": "форма только мн." },
+        { "front": "цветы",       "back": "unas flores" }
+      ]
+    },
+    {
+      "title": "ЛОВУШКА: ж.р. на ударную a-/ha- → un в ед.",
+      "mode": "vocab",
+      "cards": [
+        { "front": "орёл (ед.)",      "back": "un águila", "note": "ж.р.! но un (ударная á-)" },
+        { "front": "аудитория (ед.)", "back": "un aula",   "note": "ж.р.! но un (ударная á-)" },
+        { "front": "топор (ед.)",     "back": "un hacha",  "note": "ж.р.! но un (ударная ha-)" },
+        { "front": "орлы (мн.)",      "back": "unas águilas", "note": "во мн. → unas (ж.р. видно)" },
+        { "front": "хорошая аудитория","back": "una buena aula", "note": "с прилаг. между → una" },
+        { "front": "маленький топор", "back": "una pequeña hacha", "note": "с прилаг. между → una" }
+      ]
+    },
+    {
+      "title": "¿Qué es? / ¿Quién es? — целая фраза",
+      "mode": "vocab",
+      "cards": [
+        { "front": "Гандбол — это…",    "back": "Es un deporte.", "translation": "вид спорта" },
+        { "front": "Севилья — это…",    "back": "Es una ciudad.", "translation": "город" },
+        { "front": "Колумбия — это…",   "back": "Es un país.",    "translation": "страна", "note": "país → м.р." },
+        { "front": "Роза — это…",       "back": "Es una flor.",   "translation": "цветок" },
+        { "front": "Манго — это…",      "back": "Es una fruta.",  "translation": "фрукт" },
+        { "front": "Роналдо — это…",    "back": "Es un futbolista.", "translation": "футболист" },
+        { "front": "Исабель Альенде — это…", "back": "Es una escritora.", "translation": "писательница" },
+        { "front": "Фрида Кало — это…", "back": "Es una pintora.", "translation": "художница" },
+        { "front": "Аменабар — это…",   "back": "Es un director de cine.", "translation": "кинорежиссёр" },
+        { "front": "Стивен Хокинг — это…", "back": "Es un científico.", "translation": "учёный" }
+      ]
+    }
+  ]
+}
