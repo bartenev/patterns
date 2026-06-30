@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
   const port = Number(env.DEV_PORT) || 5173
 
   return {
+    base: env.VITE_BASE_PATH || "/",
     plugins: [vue()],
     server: {
       host,
