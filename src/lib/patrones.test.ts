@@ -78,6 +78,22 @@ describe("parseDeck", () => {
     expect(deck?.name).toBe("From title")
   })
 
+  it("prefers unit over title", () => {
+    const deck = parseDeck({
+      unit: "Unidad",
+      title: "Title",
+      cards: [{ front: "a", back: "b" }]
+    }, "fallback")
+    expect(deck?.name).toBe("Unidad")
+  })
+
+  it("defaults block title when missing", () => {
+    const deck = parseDeck({
+      blocks: [{ cards: [{ front: "a", back: "b" }] }]
+    }, "x")
+    expect(deck?.blocks[0].title).toBe("")
+  })
+
   it("skips blocks without cards array", () => {
     const deck = parseDeck({
       blocks: [{ title: "empty" }, { title: "ok", cards: [{ front: "a", back: "b" }] }]

@@ -33,6 +33,15 @@ describe("loadDecksFromModules", () => {
     expect(decks[0].fileName).toBe("solo.json")
     expect(decks[0].on).toBe(true)
   })
+
+  it("handles nested folder paths", () => {
+    const { decks, bad } = loadDecksFromModules({
+      "decks/nested/unit.json": flatDeckJson
+    })
+    expect(bad).toEqual([])
+    expect(decks[0].fileName).toBe("unit.json")
+    expect(decks[0].on).toBe(true)
+  })
 })
 
 describe("loadDecksFromFolder", () => {

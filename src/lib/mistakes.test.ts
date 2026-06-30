@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import {
   buildMistakesQueue,
   cardKey,
@@ -65,5 +65,29 @@ describe("mistakes store", () => {
     recordMistake(sample)
     clearMistakes()
     expect(loadMistakes()).toEqual([])
+  })
+
+  it("ignores corrupted storage", () => {
+    localStorage.setItem(MISTAKES_STORAGE_KEY, "not-json")
+    expect(mistakeCount()).toBe(0)
+  })
+
+  it("ignores non-array storage payload", () => {
+    localStorage.setItem(MISTAKES_STORAGE_KEY, JSON.stringify({}))
+    expect(mistakeCount()).toBe(0)
+  })
+
+  it("no-ops when removing unknown mistake", () => {
+    removeMistake(sample)
+    expect(mistakeCount()).toBe(0)
+  })
+
+  it("guards when localStorage is unavailable", () => {
+    vi.stubGlobal("localStorage", undefined)
+    expect(mistakeCount()).toBe(0)
+    recordMistake(sample)
+    removeMistake(sample)
+    clearMistakes()
+    vi.unstubAllGlobals()
   })
 })

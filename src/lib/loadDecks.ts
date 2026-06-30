@@ -15,7 +15,7 @@ export function loadDecksFromModules(
   const sorted = Object.entries(entries).sort(([a], [b]) => a.localeCompare(b, "ru"))
 
   for (const [path, data] of sorted) {
-    const fileName = path.split("/").pop() ?? path
+    const fileName = path.slice(path.lastIndexOf("/") + 1)
     const deck = parseDeck(data, cleanName(fileName))
     if (deck) {
       deck.fileName = fileName

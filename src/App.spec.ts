@@ -173,6 +173,13 @@ describe("App", () => {
     await wrapper.get('[title="Тема"]').trigger("click")
     expect(document.documentElement.getAttribute("data-theme")).toBe("light")
     expect(wrapper.text()).toContain("☾ Тема")
+    await wrapper.get('[title="Тема"]').trigger("click")
+    expect(document.documentElement.getAttribute("data-theme")).toBe("dark")
+  })
+
+  it("handles deck checkbox click", async () => {
+    const wrapper = await mountApp()
+    await wrapper.find(".deck input").trigger("click")
   })
 
   it("shows five order modes", async () => {
@@ -326,6 +333,113 @@ describe("App", () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  it("pauses and resumes timer on card click", async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = await mountApp()
+      await wrapper.get("select").setValue("2")
+      await flushPromises()
+      await startDrill(wrapper)
+
+      const card = wrapper.get(".card")
+      expect(card.classes()).not.toContain("paused")
+
+      await card.trigger("click")
+      await flushPromises()
+      expect(card.classes()).toContain("paused")
+
+      await vi.advanceTimersByTimeAsync(5000)
+      await flushPromises()
+      expect(wrapper.text()).not.toContain("привет")
+
+      await card.trigger("click")
+      await flushPromises()
+      expect(card.classes()).not.toContain("paused")
+
+      await vi.advanceTimersByTimeAsync(2000)
+      await flushPromises()
+      expect(wrapper.text()).toContain("привет")
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it("resumes answer timer and advances to done", async () => {
+    vi.useFakeTimers()
+    try {
+      const wrapper = await mountApp()
+      await wrapper.get("select").setValue("1")
+      await flushPromises()
+      await startDrill(wrapper)
+
+      await vi.advanceTimersByTimeAsync(1000)
+      await flushPromises()
+      expect(wrapper.text()).toContain("привет")
+
+      const card = wrapper.get(".card")
+      await card.trigger("click")
+      await flushPromises()
+      expect(card.classes()).toContain("paused")
+
+      await card.trigger("click")
+      await flushPromises()
+
+      await vi.advanceTimersByTimeAsync(1000)
+      await flushPromises()
+      expect(wrapper.text()).toContain("¡Listo!")
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it("disables start in mistakes mode when bank is empty", async () => {
+    const wrapper = await mountApp()
+    await wrapper.find('input[value="mistakes"]').setValue(true)
+    await flushPromises()
+    expect(wrapper.text()).toContain("5 — только ошибки (0)")
+    expect(wrapper.text()).toContain("Нет сохранённых ошибок")
+    expect(wrapper.get(".start").attributes("disabled")).toBeDefined()
+  })
+
+  it("ignores second reveal", async () => {
+    const wrapper = await mountApp()
+    await startDrill(wrapper)
+    await wrapper.get(".reveal").trigger("click")
+    expect(wrapper.find(".reveal").exists()).toBe(false)
+  })
+
+  it("mounts when speech synthesis is unavailable", async () => {
+    vi.stubGlobal("speechSynthesis", undefined)
+    const wrapper = await mountApp()
+    await startDrill(wrapper)
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "s", bubbles: true }))
+    await flushPromises()
+    expect(wrapper.text()).toContain("hola")
+  })
+
+  it("ignores card click outside timer drill", async () => {
+    const wrapper = await mountApp()
+    await startDrill(wrapper)
+    await wrapper.get(".card").trigger("click")
+    await flushPromises()
+    expect(wrapper.find(".reveal").exists()).toBe(true)
+  })
+
+  it("shows empty deck tag when card has no deck name", async () => {
+    vi.spyOn(patrones, "buildQueue").mockReturnValueOnce([{
+      front: "hola",
+      back: "привет",
+      translation: "",
+      note: "",
+      deck: "",
+      section: "",
+      mode: "vocab"
+    }])
+    const wrapper = await mountApp()
+    await startDrill(wrapper)
+    expect(wrapper.find(".tag").text()).toBe("")
   })
 
   it("shows done text with misses", async () => {

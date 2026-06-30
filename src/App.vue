@@ -193,9 +193,7 @@ function pauseTimer() {
 
   const elapsed = Date.now() - timerStartedAt
   timerRemainingMs = Math.max(0, timerDurationMs - elapsed)
-  const currentPercent = timerDurationMs
-    ? Math.min(100, (elapsed / timerDurationMs) * 100)
-    : 0
+  const currentPercent = Math.min(100, (elapsed / timerDurationMs) * 100)
 
   timerTransition.value = "none"
   timerFill.value = `${currentPercent}%`
@@ -248,13 +246,13 @@ function selectAll(on: boolean) {
 }
 
 function pickVoice() {
-  if (!("speechSynthesis" in window)) return
+  if (typeof speechSynthesis === "undefined") return
   const vs = speechSynthesis.getVoices()
   esVoice.value = vs.find((v) => /es-ES/i.test(v.lang)) || vs.find((v) => /^es/i.test(v.lang)) || null
 }
 
 function speak(text: string) {
-  if (!("speechSynthesis" in window) || !text) return
+  if (typeof speechSynthesis === "undefined" || !text) return
   speechSynthesis.cancel()
   const u = new SpeechSynthesisUtterance(text)
   u.lang = "es-ES"
@@ -402,7 +400,7 @@ onMounted(() => {
   }
 
   pickVoice()
-  if ("speechSynthesis" in window) {
+  if (typeof speechSynthesis !== "undefined") {
     speechSynthesis.onvoiceschanged = pickVoice
   }
   document.addEventListener("keydown", onKeydown)
