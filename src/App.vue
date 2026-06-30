@@ -480,12 +480,13 @@ onUnmounted(() => {
         </div>
 
         <div class="opts">
-          <div v-if="!isMistakesMode" class="seg">
+          <div class="seg">
             <button
               v-for="opt in dirOptions"
               :key="opt.value"
               type="button"
               :class="{ on: dirMode === opt.value }"
+              :disabled="isMistakesMode"
               @click="dirMode = opt.value"
             >
               {{ opt.label }}
@@ -494,8 +495,8 @@ onUnmounted(() => {
           <label class="chk">
             <input v-model="autospeak" type="checkbox"> озвучивать ответ
           </label>
-          <label v-if="!isMistakesMode" class="chk">
-            <input v-model="requeue" type="checkbox"> повторять ошибки
+          <label class="chk">
+            <input v-model="requeue" type="checkbox" :disabled="isMistakesMode"> повторять ошибки
           </label>
           <label class="timer-sel">
             таймер

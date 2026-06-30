@@ -291,6 +291,11 @@ li.deck .ct {
 
 .seg button.on { background: var(--azulejo); color: #fff; }
 
+.seg button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
 .chk {
   display: inline-flex;
   align-items: center;
@@ -301,6 +306,11 @@ li.deck .ct {
 }
 
 .chk input { width: 16px; height: 16px; accent-color: var(--azulejo); }
+
+.chk:has(input:disabled) {
+  opacity: .45;
+  cursor: not-allowed;
+}
 
 .timer-sel {
   display: inline-flex;
